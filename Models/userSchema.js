@@ -38,7 +38,8 @@ const userSchema = mongoose.Schema({
     userRole: String,
     activeUser: {
         type: Boolean,
-        default: false
+        default: true,
+        required: true
     },
 });
 

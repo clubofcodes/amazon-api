@@ -18,9 +18,8 @@ router.get("/getproducts", async (req, res) => {
 
 //To register user for signup.
 router.post("/register", async (req, res) => {
-    // console.log(req.body);
-    const { fullname, email, mNumber, password } = req.body;
-
+    // console.log(req);
+    const { fullname, email, mNumber, password, userRole, activeUser } = req.body;
     if (!fullname || !email || !mNumber || !password) {
         res.send({ error: "Fill all the details" });
         console.log("One of the input data is missing.");
@@ -36,7 +35,7 @@ router.post("/register", async (req, res) => {
             } else if (isMobile) {
                 res.status(422).json({ error: "Account already exists with the mobile number " + mNumber });
             } else {
-                const UserData = new Users({ fullname, email, mNumber, password: hashedPswd });
+                const UserData = new Users({ fullname, email, mNumber, password: hashedPswd, userRole });
                 await UserData.save();
                 res.send(UserData);
             }
@@ -84,7 +83,7 @@ router.patch("/login", async (req, res) => {
 router.get("/validuser", Authenticate, async (req, res) => {
     try {
         const ValidCurrentUser = await Users.findOne({ _id: req.userID });
-        // console.log(ValidCurrentUser);
+        console.log(ValidCurrentUser);
         res.send(ValidCurrentUser);
     } catch (error) {
         console.log(error + "error for valid user");
