@@ -19,8 +19,8 @@ router.get("/getproducts", async (req, res) => {
 //To register user for signup.
 router.post("/register", async (req, res) => {
     console.log(req);
-    const { fullname, email, mNumber, password, userRole, activeUser } = req.body;
-    if (!fullname || !email || !mNumber || !password || !activeUser) {
+    const { fullname, email, mNumber, password, userRole } = req.body;
+    if (!fullname || !email || !mNumber || !password) {
         res.send({ error: "Fill all the details" });
         console.log("One of the input data is missing.");
     } else {
@@ -101,12 +101,18 @@ router.get("/validuser", Authenticate, async (req, res) => {
 });
 
 //update user using objectid.
-router.patch("/updateuser/:id", async (req, res) => {
+router.patch("/updateuser/:id/:isActive", async (req, res) => {
     try {
         const _id = req.params.id;
-        console.log(_id);
-        const updatedUserData = await Users.findByIdAndUpdate(_id, req.body, { new: true });
-        res.send({ msg: "User Updated", updated: updatedUserData });
+        const { isActive } = req.params;
+        console.log(_id, JSON.parse(isActive));
+        if (JSON.parse(isActive)) {
+            const updatedUserData = await Users.findByIdAndUpdate(_id, { ...req.body, activeUser: true }, { new: true });
+            res.send({ msg: "User Updated!!", updated: updatedUserData });
+        } else {
+            await Users.findByIdAndUpdate(_id, { ...req.body, activeUser: isActive }, { new: true });
+            res.send({ msg: "User Disabled!!" });
+        }
     } catch (error) {
         // console.log("Login Error:", error.message);
         res.status(400).send(error.message);
