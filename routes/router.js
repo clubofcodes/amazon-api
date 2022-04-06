@@ -100,6 +100,19 @@ router.get("/validuser", Authenticate, async (req, res) => {
     }
 });
 
+//update user using objectid.
+router.patch("/updateuser/:id", async (req, res) => {
+    try {
+        const _id = req.params.id;
+        console.log(_id);
+        const updatedUserData = await Users.findByIdAndUpdate(_id, req.body, { new: true });
+        res.send({ msg: "User Updated", updated: updatedUserData });
+    } catch (error) {
+        // console.log("Login Error:", error.message);
+        res.status(400).send(error.message);
+    }
+});
+
 //For user logout
 router.get("/logout", Authenticate, async (req, res) => {
     try {
@@ -122,6 +135,82 @@ router.get("/product/:id", async (req, res) => {
         res.send(individual);
     } catch (error) {
         res.send(error);
+    }
+});
+
+//To add products.
+router.post("/addproduct/", async (req, res) => {
+
+    const { url, detailUrl, title, price, description, discount, tagline } = req.body;
+
+    if (!url || !detailUrl || !title || !price || !description || !discount || !tagline) {
+        res.send({ error: "Fill all the details" });
+        console.log("One of the input data is missing.");
+    } else {
+
+        const productsDBData = await Products.findOne({ url: url });
+
+        if (productsDBData) {
+            res.send({ msg: "Same product is already available!!" });
+        } else {
+
+            const allProducts = await Products.find();
+            // console.log(allProducts.length);
+
+            const newProductId = allProducts[allProducts.length - 1].id.slice(0, 7) + (allProducts?.length + 1)
+
+            try {
+                const productData = new Products({
+                    id: newProductId,
+                    url, detailUrl,
+                    title: {
+                        shortTitle: title.shortTitle,
+                        longTitle: title.longTitle
+                    }, price: {
+                        mrp: price.mrp,
+                        cost: price.cost,
+                        discount: price.discount
+                    }, description, discount, tagline
+                });
+                await productData.save();
+                res.send(productData);
+            } catch (error) {
+                res.send(error);
+            }
+        }
+    }
+
+});
+
+//update product using it's objectid. (Pending)
+router.patch("/updateproduct/:id", async (req, res) => {
+    try {
+        const _id = req.params.id;
+        // console.log(_id, req.body, req.params, req.query);
+        const allProducts = await Products.findOne({ _id });
+
+        if (allProducts) {
+            const productData = await Products.findByIdAndUpdate(_id, { ...req.body, id: allProducts.id }, { new: true });
+            res.send(productData);
+        } else {
+            res.send({ error: "Product Not found!!" });
+        }
+
+    } catch (error) {
+        res.status(400).send(error.message);
+    }
+});
+
+//To remove item from the cart
+router.delete("/removeproduct/:id", async (req, res) => {
+    try {
+        const _id = req.params.id;
+
+        await Products.findByIdAndDelete(_id);
+
+        res.send({ msg: "Product removed successfully" });
+    } catch (error) {
+        res.send(error.message);
     }
 });
 

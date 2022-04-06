@@ -9,7 +9,7 @@ const cookieParser = require("cookie-parser");
 
 const Products = require("./Models/productSchema");
 
-const DefaultData = require("./defaultData");
+// const DefaultData = require("./defaultData");
 
 app.use(express.json({ extended: false }));
 app.use(cookieParser(""));
@@ -20,4 +20,4 @@ app.listen(process.env.PORT || 3575, () => {
     console.log(`Server is running on port number ${process.env.PORT || 3575}`);
 });
 
-DefaultData();
+// DefaultData();
