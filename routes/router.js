@@ -18,9 +18,9 @@ router.get("/getproducts", async (req, res) => {
 
 //To register user for signup.
 router.post("/register", async (req, res) => {
-    // console.log(req);
+    console.log(req);
     const { fullname, email, mNumber, password, userRole, activeUser } = req.body;
-    if (!fullname || !email || !mNumber || !password) {
+    if (!fullname || !email || !mNumber || !password || !activeUser) {
         res.send({ error: "Fill all the details" });
         console.log("One of the input data is missing.");
     } else {
@@ -43,6 +43,16 @@ router.post("/register", async (req, res) => {
             console.log("Signup Error:", error.message);
             res.send({ error });
         }
+    }
+});
+
+//To get all users data from db.
+router.get("/getusers", async (req, res) => {
+    try {
+        const usersData = await Users.find();
+        res.send(usersData);
+    } catch (error) {
+        console.log("Error", error.message);
     }
 });
 
