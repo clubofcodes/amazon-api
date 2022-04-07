@@ -21,7 +21,7 @@ const products = [
         url: 'https://rukminim1.flixcart.com/image/416/416/kl6wx3k0/sandwich-maker/8/r/d/sandwich-01-flipkart-smartbuy-original-imagydds4zthxt8z.jpeg?q=70',
         detailUrl: 'https://rukminim1.flixcart.com/image/416/416/kl6wx3k0/sandwich-maker/8/r/d/sandwich-01-flipkart-smartbuy-original-imagydds4zthxt8z.jpeg?q=70',
         title: {
-            shortTitle: 'Sandwich Makers',
+            shortTitle: 'Home & Kitchen',
             longTitle: 'Flipkart SmartBuy Sandwich 01 Grill  (Black)'
         },
         price: {
@@ -55,7 +55,7 @@ const products = [
         url: 'https://rukminim1.flixcart.com/image/300/300/kll7bm80/smartwatch/c/1/n/43-mo-sw-sense-500-android-ios-molife-original-imagyzyycnpujyjh.jpeg?q=70',
         detailUrl: 'https://rukminim1.flixcart.com/image/416/416/kll7bm80/smartwatch/c/1/n/43-mo-sw-sense-500-android-ios-molife-original-imagyzyycnpujyjh.jpeg?q=70',
         title: {
-            shortTitle: 'Smart Watches',
+            shortTitle: 'Electronics',
             longTitle: 'Molife Sense 500 Smartwatch  (Black Strap, Freesize)',
         },
         price: {
@@ -72,7 +72,7 @@ const products = [
         url: 'https://rukminim1.flixcart.com/image/416/416/k3uhhu80/hair-dryer/n/m/t/nova-2800-w-professional-nhp-8220-original-imafmvwfhmzsxdrw.jpeg?q=70',
         detailUrl: 'https://rukminim1.flixcart.com/image/416/416/k3uhhu80/hair-dryer/n/m/t/nova-2800-w-professional-nhp-8220-original-imafmvwfhmzsxdrw.jpeg?q=70',
         title: {
-            shortTitle: 'Trimmers, Dryers & more',
+            shortTitle: 'Electronics',
             longTitle: 'Nova Professional NHP 8220 Hair Dryer  (1800 W, Multicolor)'
         },
         price: {

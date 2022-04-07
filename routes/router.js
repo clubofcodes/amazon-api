@@ -5,7 +5,76 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const secretKey = process.env.JWTKEY;
 const Authenticate = require("../Middleware/VerifyToken");
+const Catagories = require("../Models/categorySchema");
 
+// ------------------------ Products Related APIs ------------------------
+
+// ====> Category APIs.
+//To get all categories data.
+router.get("/getcategories", async (req, res) => {
+    try {
+        const categoriesData = await Catagories.find();
+        const categoriesDataArray = categoriesData.map((categoryObj) => categoryObj.category);
+        res.send({ data: categoriesData, category: categoriesDataArray });
+    } catch (error) {
+        console.log("Error", error.message);
+    }
+});
+
+//To add category inside catagories key.
+router.post("/addcategory", async (req, res) => {
+    const { category } = req.body;
+    try {
+        const isCategory = await Catagories.findOne({ category });
+        if (isCategory) {
+            res.send({ msg: "Same category is available.", data: isCategory });
+        } else {
+            //Storing data in mongodb collection.
+            const storedCategoryData = await new Catagories({ category });
+            await storedCategoryData.save();
+            res.send({ msg: "Category added successfully!!", data: storedCategoryData });
+        }
+    } catch (error) {
+        res.send({ error: error.message });
+    }
+});
+
+//update product using it's objectid.
+router.patch("/updatecategory/:id", async (req, res) => {
+    try {
+        const _id = req.params.id;
+        const { category } = req.body;
+        const isCategory = await Catagories.findOne({ _id });
+
+        if (isCategory) {
+            const updatedCategory = await Catagories.findByIdAndUpdate(_id, { category }, { new: true });
+            res.send({ msg: "Updated Category Successfully!!", data: updatedCategory });
+        } else {
+            res.send({ error: "Category Not found!!" });
+        }
+
+    } catch (error) {
+        res.status(400).send(error.message);
+    }
+});
+
+//To delete category
+router.delete("/removecategory/:id", async (req, res) => {
+    try {
+        const _id = req.params.id;
+        const deletedRes = await Catagories.findByIdAndDelete(_id);
+
+        if (deletedRes) {
+            res.send({ msg: "Category Removed successfully!!" });
+        } else {
+            res.send({ error: "No such category found!!" });
+        }
+    } catch (error) {
+        res.send({ error: error.message });
+    }
+});
+
+// ====> Products APIs.
 //To get all products data from db.
 router.get("/getproducts", async (req, res) => {
     try {
@@ -16,6 +85,95 @@ router.get("/getproducts", async (req, res) => {
     }
 });
 
+//To get individual product data.
+router.get("/product/:id", async (req, res) => {
+    try {
+        const { id } = req.params;
+        const individual = await Products.findOne({ "title.longTitle": id });
+        res.send(individual);
+    } catch (error) {
+        res.send(error);
+    }
+});
+
+//To add products.
+router.post("/addproduct/", async (req, res) => {
+
+    const { url, detailUrl, title, price, description, discount, tagline } = req.body;
+
+    if (!url || !detailUrl || !title || !price || !description || !discount || !tagline) {
+        res.send({ error: "Fill all the details" });
+        console.log("One of the input data is missing.");
+    } else {
+
+        const productsDBData = await Products.findOne({ url: url });
+
+        if (productsDBData) {
+            res.send({ msg: "Same product is already available!!" });
+        } else {
+
+            const allProducts = await Products.find();
+            // console.log(allProducts.length);
+
+            const newProductId = allProducts[allProducts.length - 1].id.slice(0, 7) + (allProducts?.length + 1)
+
+            try {
+                const productData = new Products({
+                    id: newProductId,
+                    url, detailUrl,
+                    title: {
+                        shortTitle: title.shortTitle,
+                        longTitle: title.longTitle
+                    }, price: {
+                        mrp: price.mrp,
+                        cost: price.cost,
+                        discount: price.discount
+                    }, description, discount, tagline
+                });
+                await productData.save();
+                res.send(productData);
+            } catch (error) {
+                res.send(error);
+            }
+        }
+    }
+
+});
+
+//update product using it's objectid.
+router.patch("/updateproduct/:id", async (req, res) => {
+    try {
+        const _id = req.params.id;
+        // console.log(_id, req.body, req.params, req.query);
+        const allProducts = await Products.findOne({ _id });
+
+        if (allProducts) {
+            const productData = await Products.findByIdAndUpdate(_id, { ...req.body, id: allProducts.id }, { new: true });
+            res.send(productData);
+        } else {
+            res.send({ error: "Product Not found!!" });
+        }
+
+    } catch (error) {
+        res.status(400).send(error.message);
+    }
+});
+
+//To remove item from the cart
+router.delete("/removeproduct/:id", async (req, res) => {
+    try {
+        const _id = req.params.id;
+
+        await Products.findByIdAndDelete(_id);
+
+        res.send({ msg: "Product removed successfully" });
+    } catch (error) {
+        res.send(error.message);
+    }
+});
+
+
+// ------------------------ User Related APIs ------------------------
 //To register user for signup.
 router.post("/register", async (req, res) => {
     console.log(req);
@@ -133,93 +291,7 @@ router.get("/logout", Authenticate, async (req, res) => {
     }
 });
 
-//To get individual product data.
-router.get("/product/:id", async (req, res) => {
-    try {
-        const { id } = req.params;
-        const individual = await Products.findOne({ "title.longTitle": id });
-        res.send(individual);
-    } catch (error) {
-        res.send(error);
-    }
-});
-
-//To add products.
-router.post("/addproduct/", async (req, res) => {
-
-    const { url, detailUrl, title, price, description, discount, tagline } = req.body;
-
-    if (!url || !detailUrl || !title || !price || !description || !discount || !tagline) {
-        res.send({ error: "Fill all the details" });
-        console.log("One of the input data is missing.");
-    } else {
-
-        const productsDBData = await Products.findOne({ url: url });
-
-        if (productsDBData) {
-            res.send({ msg: "Same product is already available!!" });
-        } else {
-
-            const allProducts = await Products.find();
-            // console.log(allProducts.length);
-
-            const newProductId = allProducts[allProducts.length - 1].id.slice(0, 7) + (allProducts?.length + 1)
-
-            try {
-                const productData = new Products({
-                    id: newProductId,
-                    url, detailUrl,
-                    title: {
-                        shortTitle: title.shortTitle,
-                        longTitle: title.longTitle
-                    }, price: {
-                        mrp: price.mrp,
-                        cost: price.cost,
-                        discount: price.discount
-                    }, description, discount, tagline
-                });
-                await productData.save();
-                res.send(productData);
-            } catch (error) {
-                res.send(error);
-            }
-        }
-    }
-
-});
-
-//update product using it's objectid. (Pending)
-router.patch("/updateproduct/:id", async (req, res) => {
-    try {
-        const _id = req.params.id;
-        // console.log(_id, req.body, req.params, req.query);
-        const allProducts = await Products.findOne({ _id });
-
-        if (allProducts) {
-            const productData = await Products.findByIdAndUpdate(_id, { ...req.body, id: allProducts.id }, { new: true });
-            res.send(productData);
-        } else {
-            res.send({ error: "Product Not found!!" });
-        }
-
-    } catch (error) {
-        res.status(400).send(error.message);
-    }
-});
-
-//To remove item from the cart
-router.delete("/removeproduct/:id", async (req, res) => {
-    try {
-        const _id = req.params.id;
-
-        await Products.findByIdAndDelete(_id);
-
-        res.send({ msg: "Product removed successfully" });
-    } catch (error) {
-        res.send(error.message);
-    }
-});
-
+// ------------------------ Cart Related APIs ------------------------
 //For adding the data into cart
 router.post("/addtocart/:id", Authenticate, async (req, res) => {
     try {

@@ -1,6 +1,6 @@
 const router = require("express").Router();
 
-//To get all products data from db.
+//To get all products data from db. for demo purpose.
 router.get("/getproducts", async (req, res) => {
     try {
         res.json({ status: 200, msg: "Products data fetched" });
