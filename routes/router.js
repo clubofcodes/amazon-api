@@ -263,16 +263,47 @@ router.patch("/updateuser/:id/:isActive", async (req, res) => {
     try {
         const _id = req.params.id;
         const { isActive } = req.params;
-        console.log(_id, JSON.parse(isActive));
-        if (JSON.parse(isActive)) {
-            const updatedUserData = await Users.findByIdAndUpdate(_id, { ...req.body, activeUser: true }, { new: true });
-            res.send({ msg: "User Updated!!", updated: updatedUserData });
+        const { password } = req.body;
+
+        //To verify pwd sent by user is same as encrypted in db.
+        const userData = await Users.findOne({ password });
+
+        if (userData) {
+            if (JSON.parse(isActive)) {
+                const updatedUserData = await Users.findByIdAndUpdate(_id, { ...req.body, password, activeUser: true }, { new: true });
+                res.send({ msg: "User Updated!!", data: updatedUserData });
+            } else {
+                const disabledUserData = await Users.findByIdAndUpdate(_id, { ...req.body, password, activeUser: isActive }, { new: true });
+                res.send({ msg: "User Disabled!!", data: disabledUserData });
+            }
         } else {
-            await Users.findByIdAndUpdate(_id, { ...req.body, activeUser: isActive }, { new: true });
-            res.send({ msg: "User Disabled!!" });
+            const userDataById = await Users.findOne({ _id });
+            //To verify user has entered the same pwd as entered during signup before encryption.
+            const isMatch = await bcrypt.compare(password, userDataById.password);
+
+            //to decrypt pwd if user has sended diffrent password in request.
+            const salt = await bcrypt.genSalt(10);
+            const hashedPwd = await bcrypt.hash(password, salt);
+
+            if (isMatch) {
+                if (JSON.parse(isActive)) {
+                    const updatedUserData = await Users.findByIdAndUpdate(_id, { ...req.body, password: userDataById.password, activeUser: true }, { new: true });
+                    res.send({ msg: "User Updated!!", data: updatedUserData });
+                } else {
+                    const disabledUserData = await Users.findByIdAndUpdate(_id, { ...req.body, password: userDataById.password, activeUser: isActive }, { new: true });
+                    res.send({ msg: "User Disabled!!", data: disabledUserData });
+                }
+            } else {
+                if (JSON.parse(isActive)) {
+                    const updatedUserData = await Users.findByIdAndUpdate(_id, { ...req.body, password: hashedPwd, activeUser: true }, { new: true });
+                    res.send({ msg: "User Updated!!", data: updatedUserData });
+                } else {
+                    const disabledUserData = await Users.findByIdAndUpdate(_id, { ...req.body, password: hashedPwd, activeUser: isActive }, { new: true });
+                    res.send({ msg: "User Disabled!!", data: disabledUserData });
+                }
+            }
         }
     } catch (error) {
-        // console.log("Login Error:", error.message);
         res.status(400).send(error.message);
     }
 });
