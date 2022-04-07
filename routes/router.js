@@ -86,7 +86,7 @@ router.get("/getproducts", async (req, res) => {
 });
 
 //To get individual product data.
-router.get("/product/:id", async (req, res) => {
+router.get("/getproduct/:id", async (req, res) => {
     try {
         const { id } = req.params;
         const individual = await Products.findOne({ "title.longTitle": id });
@@ -254,7 +254,8 @@ router.get("/validuser", Authenticate, async (req, res) => {
         console.log(ValidCurrentUser);
         res.send(ValidCurrentUser);
     } catch (error) {
-        console.log(error + "error for valid user");
+        // console.log(error + "error for valid user");
+        res.send({ error: error.message });
     }
 });
 
@@ -318,7 +319,7 @@ router.get("/logout", Authenticate, async (req, res) => {
         console.log("user logout");
 
     } catch (error) {
-        console.log(error);
+        res.send({ error: error.message });
     }
 });
 
