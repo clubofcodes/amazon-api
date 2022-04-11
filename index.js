@@ -16,7 +16,7 @@ app.use(cookieParser(""));
 
 //origin: 'http://localhost:3000'
 // https://fy-amazon-clone.vercel.app/
-app.use(cors({ credentials: true, origin: 'https://fy-amazon-clone.vercel.app/' }));
+app.use(cors({ credentials: true, origin: 'https://fy-amazon-clone.vercel.app' }));
 app.use("/api", router);
 
 app.listen(process.env.PORT || 3575, () => {
