@@ -14,8 +14,9 @@ const Products = require("./Models/productSchema");
 app.use(express.json({ extended: false }));
 app.use(cookieParser(""));
 
-//origin: 'http://localhost:3575/api'
-app.use(cors({ credentials: true, origin: 'https://amazon-api.vercel.app/' }));
+//origin: 'http://localhost:3000'
+// https://amazon-api.vercel.app/
+app.use(cors({ credentials: true, origin: 'http://localhost:3000' }));
 app.use("/api", router);
 
 app.listen(process.env.PORT || 3575, () => {
